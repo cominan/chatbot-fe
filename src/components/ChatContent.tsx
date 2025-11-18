@@ -1,0 +1,117 @@
+import { Layout, Input, Button, Empty, Avatar } from 'antd';
+import { SendOutlined, UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { sendMessage } from '../store/slices/chatSlice';
+import { useState, useRef, useEffect } from 'react';
+
+const { Content } = Layout;
+const { TextArea } = Input;
+
+export default function ChatContent() {
+  const dispatch = useAppDispatch();
+  const { currentChat } = useAppSelector((state) => state.chat);
+  const [inputValue, setInputValue] = useState('');
+  const [sending, setSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentChat?.messages]);
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || !currentChat) return;
+
+    setSending(true);
+    try {
+      await dispatch(
+        sendMessage({
+          chatId: currentChat.id,
+          content: inputValue.trim(),
+        })
+      );
+      setInputValue('');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  if (!currentChat) {
+    return (
+      <Content className="chat-content">
+        <div className="empty-chat">
+          <Empty
+            description="Select a chat or create a new one to start messaging"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        </div>
+      </Content>
+    );
+  }
+
+  return (
+    <Content className="chat-content">
+      <div className="messages-container">
+        {currentChat.messages.length === 0 ? (
+          <div className="empty-messages">
+            <Empty
+              description="No messages yet. Start the conversation!"
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
+          </div>
+        ) : (
+          <div className="messages-list">
+            {currentChat.messages.map((message) => (
+              <div
+                key={message.id}
+                className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
+              >
+                <Avatar
+                  icon={message.role === 'user' ? <UserOutlined /> : <RobotOutlined />}
+                  className="message-avatar"
+                />
+                <div className="message-content">
+                  <div className="message-text">{message.content}</div>
+                  <div className="message-time">
+                    {new Date(message.timestamp).toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      <div className="input-container">
+        <TextArea
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type your message... (Press Enter to send, Shift+Enter for new line)"
+          autoSize={{ minRows: 1, maxRows: 4 }}
+          disabled={sending}
+        />
+        <Button
+          type="primary"
+          icon={<SendOutlined />}
+          onClick={handleSend}
+          loading={sending}
+          disabled={!inputValue.trim()}
+        >
+          Send
+        </Button>
+      </div>
+    </Content>
+  );
+}
