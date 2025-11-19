@@ -3,7 +3,7 @@ import { apiClient } from './baseApi';
 
 export const authApi = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
+    const response = await apiClient.post<LoginResponse>('/auth/signin', credentials);
     return response.data;
   },
 

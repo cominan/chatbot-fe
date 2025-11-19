@@ -256,6 +256,28 @@
   text-decoration: underline;
 }
 
+/* Notification Styling */
+.ant-notification {
+  z-index: 9999;
+}
+
+.ant-notification-notice {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ant-notification-notice-message {
+  font-weight: 600;
+  color: #262626;
+}
+
+.ant-notification-notice-description {
+  color: #595959;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 /* Scrollbar Styling */
 .sidebar-content::-webkit-scrollbar,
 .messages-container::-webkit-scrollbar {

@@ -42,7 +42,7 @@ export interface Message {
 }
 
 export interface Chat {
-  id: string;
+  conversationId: string;
   title: string;
   createdAt: Date;
   updatedAt: Date;
@@ -50,8 +50,9 @@ export interface Chat {
 }
 
 export interface SendMessageRequest {
-  chatId: string;
-  content: string;
+  userId: string;
+  message: string;
+  conversationId: string;
 }
 
 export interface SendMessageResponse {

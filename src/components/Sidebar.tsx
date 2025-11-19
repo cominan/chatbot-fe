@@ -1,7 +1,7 @@
 import { Layout, Menu, Button, Popconfirm, Empty } from 'antd';
 import { PlusOutlined, MessageOutlined, DeleteOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { createChat, deleteChat, setCurrentChat, fetchChats } from '../store/slices/chatSlice';
+import { createChat, deleteChat, setCurrentChat, fetchChats, fetchChat } from '../store/slices/chatSlice';
 import { logout } from '../store/slices/authSlice';
 import { useEffect } from 'react';
 import type { MenuProps } from 'antd';
@@ -22,10 +22,12 @@ export default function Sidebar() {
   };
 
   const handleSelectChat = (chatId: string) => {
-    const chat = chats.find((c) => c.id === chatId);
-    if (chat) {
-      dispatch(setCurrentChat(chat));
-    }
+    console.log("chatId", chatId);
+    dispatch(fetchChat(chatId));
+    // const chat = chats.find((c) => c.conversationId === chatId);
+    // if (chat) {
+    //   dispatch(setCurrentChat(chat));
+    // }
   };
 
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
@@ -38,7 +40,7 @@ export default function Sidebar() {
   };
 
   const menuItems: MenuProps['items'] = chats.map((chat) => ({
-    key: chat.id,
+    key: chat.conversationId,
     icon: <MessageOutlined />,
     label: (
       <div className="chat-menu-item">
@@ -46,7 +48,7 @@ export default function Sidebar() {
         <Popconfirm
           title="Delete this chat?"
           description="This action cannot be undone."
-          onConfirm={(e) => handleDeleteChat(chat.id, e as any)}
+          onConfirm={(e) => handleDeleteChat(chat.conversationId, e as any)}
           okText="Delete"
           cancelText="Cancel"
         >
@@ -77,7 +79,7 @@ export default function Sidebar() {
         {chats.length > 0 ? (
           <Menu
             mode="inline"
-            selectedKeys={currentChat ? [currentChat.id] : []}
+            selectedKeys={currentChat ? [currentChat.conversationId] : []}
             items={menuItems}
             onClick={({ key }) => handleSelectChat(key)}
           />

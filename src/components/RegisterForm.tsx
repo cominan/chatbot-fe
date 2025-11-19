@@ -1,5 +1,5 @@
-import { Form, Input, Button, Alert, DatePicker } from 'antd';
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Form, Input, Button, DatePicker, notification } from 'antd';
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { register, clearError } from '../store/slices/authSlice';
 import type { RegisterData } from '../types';
@@ -11,7 +11,7 @@ export default function RegisterForm() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
   const [form] = Form.useForm();
-
+ const [api, contextHolder] = notification.useNotification();
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -29,24 +29,33 @@ export default function RegisterForm() {
       dateOfBirth: values.dateOfBirth ? dayjs(values.dateOfBirth).format('YYYY-MM-DD') : undefined,
       address: values.address,
     };
-    await dispatch(register(registerData));
+    
+    const result = await dispatch(register(registerData));
+    if (register.fulfilled.match(result)) {
+      api.success({
+        message: 'Registration Successful',
+        description: 'Your account has been created successfully! Welcome aboard.',
+        placement: 'topRight',
+        duration: 4,
+        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+      });
+    } else if (register.rejected.match(result)) {
+      api.error({
+        message: 'Registration Failed',
+        description: result.payload as string || 'An error occurred during registration.',
+        placement: 'topRight',
+        duration: 5,
+        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      });
+    }
   };
 
   return (
     <div className="register-form-container">
+     {contextHolder}
       <div className="register-form-card">
         <h1 className="register-title">Create Account</h1>
         <p className="register-subtitle">Sign up to start chatting</p>
-
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            closable
-            onClose={() => dispatch(clearError())}
-            style={{ marginBottom: 16 }}
-          />
-        )}
 
         <Form
           form={form}

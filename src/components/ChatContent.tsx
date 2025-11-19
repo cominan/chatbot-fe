@@ -1,8 +1,9 @@
-import { Layout, Input, Button, Empty, Avatar } from 'antd';
+import { Layout, Input, Button, Empty, Avatar, notification } from 'antd';
 import { SendOutlined, UserOutlined, RobotOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { sendMessage } from '../store/slices/chatSlice';
 import { useState, useRef, useEffect } from 'react';
+import type { Message } from '../types';
 
 const { Content } = Layout;
 const { TextArea } = Input;
@@ -27,12 +28,31 @@ export default function ChatContent() {
 
     setSending(true);
     try {
-      await dispatch(
+      const result = await dispatch(
         sendMessage({
-          chatId: currentChat.id,
-          content: inputValue.trim(),
+          userId: null as any, // Replace with actual user ID from auth state if needed
+          conversationId: currentChat.conversationId,
+          message: inputValue.trim(),
         })
       );
+      
+      // Show notification for assistant's response
+      if (sendMessage.fulfilled.match(result)) {
+        console.log("result", result);
+        
+        const response = result.payload as { userMessage: Message; assistantMessage: Message };
+        notification.info({
+          message: 'Assistant Response',
+          description: response.assistantMessage.content,
+          placement: 'topRight',
+          duration: 8,
+          style: {
+            width: 400,
+          },
+          icon: <RobotOutlined style={{ color: '#1890ff' }} />,
+        });
+      }
+      
       setInputValue('');
     } finally {
       setSending(false);

@@ -48,10 +48,19 @@ export const createChat = createAsyncThunk(
 
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async (data: SendMessageRequest, { rejectWithValue }) => {
+  async (data: SendMessageRequest, { rejectWithValue, getState }) => {
     try {
+      // Add user message immediately
+      const userMessage: Message = {
+        id: `temp-${Date.now()}`,
+        content: data.message,
+        role: 'user',
+        timestamp: new Date(),
+        chatId: data.userId,
+      };
+      
       const response = await chatApi.sendMessage(data);
-      return response.message;
+      return { userMessage, assistantMessage: response.message };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to send message');
     }
@@ -117,15 +126,17 @@ const chatSlice = createSlice({
         state.currentChat = action.payload;
       })
       // Send message
-      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<Message>) => {
-        if (state.currentChat && state.currentChat.id === action.payload.chatId) {
-          state.currentChat.messages.push(action.payload);
+      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<{ userMessage: Message; assistantMessage: Message }>) => {
+        if (state.currentChat) {
+          // Add user message to chat
+          state.currentChat.messages.push(action.payload.userMessage);
+          // Note: Assistant message will be shown as notification, not added to chat
         }
       })
       // Delete chat
       .addCase(deleteChat.fulfilled, (state, action: PayloadAction<string>) => {
-        state.chats = state.chats.filter((chat) => chat.id !== action.payload);
-        if (state.currentChat?.id === action.payload) {
+        state.chats = state.chats.filter((chat) => chat.conversationId !== action.payload);
+        if (state.currentChat?.conversationId === action.payload) {
           state.currentChat = null;
         }
       });

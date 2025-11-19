@@ -4,13 +4,13 @@ import { apiClient } from './baseApi';
 export const chatApi = {
   // Get all chats for current user
   getChats: async (): Promise<Chat[]> => {
-    const response = await apiClient.get<Chat[]>('/chats');
+    const response = await apiClient.get<Chat[]>('/history/conversations');
     return response.data;
   },
 
   // Get a specific chat by ID
-  getChat: async (chatId: string): Promise<Chat> => {
-    const response = await apiClient.get<Chat>(`/chats/${chatId}`);
+  getChat: async (conversationId: string): Promise<Chat> => {
+    const response = await apiClient.get<Chat>(`/history/conversations/${conversationId}`);
     return response.data;
   },
 
@@ -22,7 +22,7 @@ export const chatApi = {
 
   // Send a message in a chat
   sendMessage: async (data: SendMessageRequest): Promise<SendMessageResponse> => {
-    const response = await apiClient.post<SendMessageResponse>('/messages', data);
+    const response = await apiClient.post<SendMessageResponse>('/chat/send', data);
     return response.data;
   },
 

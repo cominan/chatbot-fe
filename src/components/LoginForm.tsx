@@ -1,5 +1,5 @@
-import { Form, Input, Button, Alert } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Form, Input, Button, notification } from 'antd';
+import { UserOutlined, LockOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { login, clearError } from '../store/slices/authSlice';
 import type { LoginCredentials } from '../types';
@@ -10,7 +10,7 @@ export default function LoginForm() {
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.auth);
   const [form] = Form.useForm();
-
+ const [api, contextHolder] = notification.useNotification();
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -18,24 +18,33 @@ export default function LoginForm() {
   }, [dispatch]);
 
   const onFinish = async (values: LoginCredentials) => {
-    await dispatch(login(values));
+    const result = await dispatch(login(values));
+    
+    if (login.fulfilled.match(result)) {
+      api.success({
+        message: 'Login Successful',
+        description: 'Welcome back! You have successfully signed in.',
+        placement: 'topRight',
+        duration: 4,
+        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+      });
+    } else if (login.rejected.match(result)) {
+      api.error({
+        message: 'Login Failed',
+        description: result.payload as string || 'An error occurred during login.',
+        placement: 'topRight',
+        duration: 5,
+        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      });
+    }
   };
 
   return (
     <div className="login-form-container">
+       {contextHolder}
       <div className="login-form-card">
         <h1 className="login-title">Welcome Back</h1>
         <p className="login-subtitle">Sign in to continue to your chats</p>
-
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            closable
-            onClose={() => dispatch(clearError())}
-            style={{ marginBottom: 16 }}
-          />
-        )}
 
         <Form
           form={form}
