@@ -19,6 +19,7 @@ export default function Sidebar() {
 
   const handleNewChat = async () => {
     await dispatch(createChat({ title: 'New Chat' }));
+    dispatch(fetchChats());
   };
 
   const handleSelectChat = (chatId: string) => {

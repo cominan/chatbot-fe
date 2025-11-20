@@ -15,8 +15,8 @@ export const chatApi = {
   },
 
   // Create a new chat
-  createChat: async (data: CreateChatRequest): Promise<CreateChatResponse> => {
-    const response = await apiClient.post<CreateChatResponse>('/chats', data);
+  createChat: async (data: CreateChatRequest): Promise<Chat> => {
+    const response = await apiClient.post<Chat>('/chat/create-chat', data);
     return response.data;
   },
 

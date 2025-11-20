@@ -1,13 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, App as AntApp, notification } from 'antd';
 import { store } from './store';
 import { useAppSelector } from './hooks/redux';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Chat from './pages/Chat';
 import './App.css';
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +45,14 @@ function AppRoutes() {
 }
 
 function App() {
+  useEffect(() => {
+    // Configure notification globally
+    notification.config({
+      placement: 'topRight',
+      duration: 4.5,
+    });
+  }, []);
+
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
@@ -55,9 +64,11 @@ function App() {
             },
           }}
         >
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <AntApp notification={{ placement: 'topRight' }}>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AntApp>
         </ConfigProvider>
       </QueryClientProvider>
     </Provider>

@@ -39,7 +39,7 @@ export const createChat = createAsyncThunk(
   async (data: CreateChatRequest, { rejectWithValue }) => {
     try {
       const response = await chatApi.createChat(data);
-      return response.chat;
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create chat');
     }
@@ -60,7 +60,7 @@ export const sendMessage = createAsyncThunk(
       };
       
       const response = await chatApi.sendMessage(data);
-      return { userMessage, assistantMessage: response.message };
+      return { userMessage, assistantMessage: response.botReply, conversationId: data.conversationId };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to send message');
     }
@@ -126,8 +126,10 @@ const chatSlice = createSlice({
         state.currentChat = action.payload;
       })
       // Send message
-      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<{ userMessage: Message; assistantMessage: Message }>) => {
+      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<{ userMessage: Message; assistantMessage: String, conversationId: string }>) => {
         if (state.currentChat) {
+          console.log("state.currentChat", state.currentChat);
+          
           // Add user message to chat
           state.currentChat.messages.push(action.payload.userMessage);
           // Note: Assistant message will be shown as notification, not added to chat

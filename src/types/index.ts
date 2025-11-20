@@ -56,7 +56,8 @@ export interface SendMessageRequest {
 }
 
 export interface SendMessageResponse {
-  message: Message;
+  botReply: string;
+  conversationId: string;
 }
 
 export interface CreateChatRequest {

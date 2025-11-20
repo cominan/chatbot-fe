@@ -35,15 +35,16 @@ export default function ChatContent() {
           message: inputValue.trim(),
         })
       );
+      console.log("result", result);
       
       // Show notification for assistant's response
       if (sendMessage.fulfilled.match(result)) {
-        console.log("result", result);
+        const response = result.payload as { userMessage: Message; assistantMessage: String, conversationId: string };
+        console.log("response", response);
         
-        const response = result.payload as { userMessage: Message; assistantMessage: Message };
         notification.info({
           message: 'Assistant Response',
-          description: response.assistantMessage.content,
+          description: response.assistantMessage,
           placement: 'topRight',
           duration: 8,
           style: {
@@ -82,7 +83,7 @@ export default function ChatContent() {
   return (
     <Content className="chat-content">
       <div className="messages-container">
-        {currentChat.messages.length === 0 ? (
+        {currentChat?.messages?.length === 0 ? (
           <div className="empty-messages">
             <Empty
               description="No messages yet. Start the conversation!"
@@ -91,7 +92,7 @@ export default function ChatContent() {
           </div>
         ) : (
           <div className="messages-list">
-            {currentChat.messages.map((message) => (
+            {currentChat?.messages?.map((message) => (
               <div
                 key={message.id}
                 className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
