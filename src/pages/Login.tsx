@@ -8,6 +8,8 @@ export default function Login() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
+    console.log("isAuthenticated", isAuthenticated);
+    
     if (isAuthenticated) {
       navigate('/chat', { replace: true });
     }

@@ -54,11 +54,11 @@ export const sendMessage = createAsyncThunk(
       const userMessage: Message = {
         id: `temp-${Date.now()}`,
         content: data.message,
-        role: 'user',
-        timestamp: new Date(),
+        sender: 'user',
+        createdAt: new Date(),
         chatId: data.userId,
       };
-      
+
       const response = await chatApi.sendMessage(data);
       return { userMessage, assistantMessage: response.botReply, conversationId: data.conversationId };
     } catch (error: any) {
@@ -108,9 +108,14 @@ const chatSlice = createSlice({
         state.error = action.payload as string;
       })
       // Fetch chat
-      .addCase(fetchChat.pending, (state) => {
+      .addCase(fetchChat.pending, (state, action) => {
         state.loading = true;
         state.error = null;
+        state.chats.forEach((chat) => {
+          if (chat.conversationId === action.meta.arg) {
+            chat.messages = []; // Clear messages while loading
+          }
+        });
       })
       .addCase(fetchChat.fulfilled, (state, action: PayloadAction<Chat>) => {
         state.loading = false;
@@ -126,12 +131,11 @@ const chatSlice = createSlice({
         state.currentChat = action.payload;
       })
       // Send message
-      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<{ userMessage: Message; assistantMessage: String, conversationId: string }>) => {
+      .addCase(sendMessage.fulfilled, (state, action: PayloadAction<{ userMessage: Message; assistantMessage: string, conversationId: string }>) => {
         if (state.currentChat) {
-          console.log("state.currentChat", state.currentChat);
-          
           // Add user message to chat
           state.currentChat.messages.push(action.payload.userMessage);
+          state.currentChat.messages.push({ id: `temp-${Date.now()}`, content: action.payload.assistantMessage, sender: 'bot', createdAt: new Date(), chatId: state.currentChat.conversationId }); // Update chat list to reflect new message
           // Note: Assistant message will be shown as notification, not added to chat
         }
       })

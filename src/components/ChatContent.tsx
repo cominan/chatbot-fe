@@ -92,23 +92,42 @@ export default function ChatContent() {
           </div>
         ) : (
           <div className="messages-list">
-            {currentChat?.messages?.map((message) => (
-              <div
-                key={message.id}
-                className={`message ${message.role === 'user' ? 'user-message' : 'assistant-message'}`}
-              >
-                <Avatar
-                  icon={message.role === 'user' ? <UserOutlined /> : <RobotOutlined />}
-                  className="message-avatar"
-                />
-                <div className="message-content">
-                  <div className="message-text">{message.content}</div>
-                  <div className="message-time">
-                    {new Date(message.timestamp).toLocaleTimeString()}
+              {currentChat?.messages?.map((message) => {
+                console.log("message", message);
+                
+                return (
+                  <div
+                    key={message.id}
+                    className={`message ${message.sender === 'user' ? 'user-message' : 'assistant-message'}`}
+                  >
+                    {message.sender === 'user' && (
+                      <Avatar
+                        icon={<UserOutlined />}
+                        className="message-avatar"
+                      />
+                    )}
+                    <div className="message-content">
+                      <div className="message-text">{message.content}</div>
+                      <div className="message-time">
+                        {new Date(message.createdAt).toLocaleDateString('vi-VN', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                        })}
+                      </div>
+                    </div>
+                    {message.sender === 'bot' && (
+                      <Avatar
+                        icon={<RobotOutlined />}
+                        className="message-avatar"
+                      />
+                    )}
                   </div>
-                </div>
-              </div>
-            ))}
+                )
+            })}
             <div ref={messagesEndRef} />
           </div>
         )}

@@ -40,27 +40,31 @@ export default function Sidebar() {
     dispatch(logout());
   };
 
-  const menuItems: MenuProps['items'] = chats.map((chat) => ({
-    key: chat.conversationId,
-    icon: <MessageOutlined />,
-    label: (
-      <div className="chat-menu-item">
-        <span className="chat-title">{chat.title}</span>
-        <Popconfirm
-          title="Delete this chat?"
-          description="This action cannot be undone."
-          onConfirm={(e) => handleDeleteChat(chat.conversationId, e as any)}
-          okText="Delete"
-          cancelText="Cancel"
-        >
-          <DeleteOutlined
-            className="delete-icon"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </Popconfirm>
-      </div>
-    ),
-  }));
+  const menuItems: MenuProps['items'] = chats.map((chat) => {
+    console.log("chat", chat);
+    
+    return ({
+      key: chat.conversationId,
+      icon: <MessageOutlined />,
+      label: (
+        <div className="chat-menu-item">
+          <span className="chat-title">{chat.title}</span>
+          <Popconfirm
+            title="Delete this chat?"
+            description="This action cannot be undone."
+            onConfirm={(e) => handleDeleteChat(chat.conversationId, e as any)}
+            okText="Delete"
+            cancelText="Cancel"
+          >
+            <DeleteOutlined
+              className="delete-icon"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Popconfirm>
+        </div>
+      ),
+    })
+  });
 
   return (
     <Sider width={280} className="sidebar">
